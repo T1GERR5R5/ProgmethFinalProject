@@ -1,11 +1,13 @@
 package Charactor;
 
+import AttackLogic.Attackable;
+
 public class BasePlayer {
     private final int maxHp = 10;
     private int Hp = 7;
 
     public void decreaseHp(int damage) {
-        this.Hp -= 1;
+        this.Hp -= damage;
     }
 
     public int getHp() {
@@ -14,4 +16,5 @@ public class BasePlayer {
     public int getMaxHp() {
         return maxHp;
     }
+
 }
