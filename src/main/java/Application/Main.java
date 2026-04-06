@@ -17,47 +17,50 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 public class Main extends Application {
-    // ย้ายตัวแปรที่ต้องใช้บ่อยๆ มาเป็น Field
+
     Stage window;
-    Scene menuScene, gameScene;
+    Scene menuScene, gameScene, endScene;
 
     double barWidth = 250;
     double barHeight = 20;
+
     Player1 p1 = new Player1();
     Player2 p2 = new Player2();
+
+    AnimationTimer timer;
 
     @Override
     public void start(Stage stage) {
         window = stage;
 
-        // --- 1. สร้างหน้า Menu ---
+        // ===== MENU =====
         Text title = new Text("2D Fighting Game");
         title.setFont(Font.font(40));
 
         Button startBtn = new Button("Start Game");
         startBtn.setPrefSize(150, 40);
         startBtn.setOnAction(e -> {
-            createGameScene(); // สร้าง Game Scene เมื่อกดเริ่ม
+            resetGame();
+            createGameScene();
             window.setScene(gameScene);
         });
 
         Button quitBtn = new Button("Quit Game");
         quitBtn.setPrefSize(150, 40);
-        quitBtn.setOnAction(e -> window.close()); // ปิดโปรแกรม
+        quitBtn.setOnAction(e -> window.close());
 
-        VBox menuLayout = new VBox(20); // เว้นระยะห่างระหว่างปุ่ม 20px
+        VBox menuLayout = new VBox(20);
         menuLayout.setAlignment(Pos.CENTER);
         menuLayout.getChildren().addAll(title, startBtn, quitBtn);
 
         menuScene = new Scene(menuLayout, 800, 400);
 
-        // --- 2. ตั้งค่าเริ่มต้น ---
-        window.setScene(menuScene); // เริ่มที่หน้า Menu
+        window.setScene(menuScene);
         window.setTitle("2D Fighting Game");
         window.show();
     }
 
-    // แยก Logic การสร้างฉากเกมออกมา
+    // ===== GAME SCENE =====
     void createGameScene() {
         Canvas canvas = new Canvas(800, 400);
         GraphicsContext gc = canvas.getGraphicsContext2D();
@@ -65,40 +68,88 @@ public class Main extends Application {
         StackPane root = new StackPane(canvas);
         gameScene = new Scene(root);
 
-        // ส่งฉากใหม่ไปให้ HandleInput
         HandleInput handleInput = new HandleInput(gameScene, p1, p2);
         handleInput.process();
 
-        new AnimationTimer() {
+        timer = new AnimationTimer() {
+            @Override
             public void handle(long now) {
                 setUpBackground(gc);
                 update(gc);
+
+                // 🔥 CHECK GAME OVER
+                if (p1.getHp() <= 0 || p2.getHp() <= 0) {
+                    this.stop();
+
+                    String winner = (p1.getHp() <= 0) ? "Player 2" : "Player 1";
+                    createEndScene(winner);
+                    window.setScene(endScene);
+                }
             }
-        }.start();
+        };
+        timer.start();
     }
 
-    // เมธอด setUpBackground และ update ใช้โค้ดเดิมของคุณได้เลย
+    // ===== END SCENE =====
+    void createEndScene(String winner) {
+        Text resultText = new Text(winner + " Wins!");
+        resultText.setFont(Font.font(40));
+
+        Button restartBtn = new Button("Restart");
+        restartBtn.setPrefSize(150, 40);
+        restartBtn.setOnAction(e -> {
+            resetGame();
+            createGameScene();
+            window.setScene(gameScene);
+        });
+
+        Button menuBtn = new Button("Back to Menu");
+        menuBtn.setPrefSize(150, 40);
+        menuBtn.setOnAction(e -> window.setScene(menuScene));
+
+        VBox layout = new VBox(20);
+        layout.setAlignment(Pos.CENTER);
+        layout.getChildren().addAll(resultText, restartBtn, menuBtn);
+
+        endScene = new Scene(layout, 800, 400);
+    }
+
+    // ===== RESET GAME =====
+    void resetGame() {
+        p1.setHp(p1.getMaxHp());
+        p2.setHp(p2.getMaxHp());
+    }
+
+    // ===== DRAW BACKGROUND =====
     void setUpBackground(GraphicsContext gc) {
         gc.setFill(Color.LIGHTBLUE);
         gc.fillRect(0, 0, 800, 400);
+
         gc.setFill(Color.DARKGREEN);
         gc.fillRect(0, 300, 800, 100);
 
+        // Player 1
         gc.setFill(Color.RED);
         gc.fillRect(200, 250, 50, 50);
         gc.setFill(Color.GRAY);
         gc.fillRect(20, 20, barWidth, barHeight);
 
+        // Player 2
         gc.setFill(Color.BLUE);
         gc.fillRect(550, 250, 50, 50);
         gc.setFill(Color.GRAY);
         gc.fillRect(800 - barWidth - 20, 20, barWidth, barHeight);
     }
 
-    void update(GraphicsContext gc){
+    // ===== UPDATE HP BAR =====
+    void update(GraphicsContext gc) {
+        // P1 HP
         gc.setFill(Color.LIMEGREEN);
-        gc.fillRect(20, 20, (p1.getHp() / (double) p1.getMaxHp()) * barWidth, barHeight);
+        gc.fillRect(20, 20,
+                (p1.getHp() / (double) p1.getMaxHp()) * barWidth,
+                barHeight);
 
+        // P2 HP
         double p2Width = (p2.getHp() / (double) p2.getMaxHp()) * barWidth;
         gc.setFill(Color.LIMEGREEN);
         gc.fillRect(800 - 20 - p2Width, 20, p2Width, barHeight);

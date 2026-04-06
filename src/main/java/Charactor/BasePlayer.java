@@ -17,4 +17,7 @@ public class BasePlayer {
         return maxHp;
     }
 
+    public void setHp(int hp) {
+        Hp = hp;
+    }
 }
