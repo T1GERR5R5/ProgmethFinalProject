@@ -68,19 +68,23 @@ public class Main extends Application {
         StackPane root = new StackPane(canvas);
         gameScene = new Scene(root);
 
-        HandleInput handleInput = new HandleInput(gameScene, p1, p2);
+        // 1. สร้าง Controller (ส่ง p1, p2 เข้าไปจัดการ)
+        Controller controller = new Controller(p1, p2);
+
+        // 2. สร้าง HandleInput โดยส่ง scene และ controller (แก้ Error ตรงนี้)
+        // ลบบรรทัดที่ประกาศซ้ำ และบรรทัดที่ส่ง p1, p2 โดยตรงออก
+        HandleInput handleInput = new HandleInput(gameScene, controller);
         handleInput.process();
 
+        // 3. AnimationTimer (เหมือนเดิม)
         timer = new AnimationTimer() {
             @Override
             public void handle(long now) {
                 setUpBackground(gc);
                 update(gc);
 
-                // 🔥 CHECK GAME OVER
                 if (p1.getHp() <= 0 || p2.getHp() <= 0) {
                     this.stop();
-
                     String winner = (p1.getHp() <= 0) ? "Player 2" : "Player 1";
                     createEndScene(winner);
                     window.setScene(endScene);
