@@ -1,8 +1,6 @@
 package Application;
 
 import AttackLogic.*;
-import Charactor.Player1;
-import Charactor.Player2;
 import javafx.scene.Scene;
 
 public class HandleInput {
@@ -16,8 +14,13 @@ public class HandleInput {
 
     public void process() {
         scene.setOnKeyPressed(event -> {
-            Attackable attack = null;
+            // SPACE controls the projectile (aim / fire)
+            switch (event.getCode()) {
+                case SPACE -> { controller.handleSpacebar(); return; }
+            }
 
+            // Attack selection keys — choose type first, then SPACE to aim
+            Attackable attack = null;
             if (controller.isPlayer1Turn()) {
                 switch (event.getCode()) {
                     case A -> attack = new NormalAttack();
@@ -32,8 +35,7 @@ public class HandleInput {
                 }
             }
 
-            // ส่งให้ Controller ตัดสินใจ
-            controller.executeAttack(attack);
+            controller.selectAttack(attack); // stores selection, does NOT fire yet
         });
     }
 }

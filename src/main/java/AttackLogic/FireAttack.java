@@ -1,11 +1,9 @@
 package AttackLogic;
 
-import Application.HandleInput;
 import Charactor.BasePlayer;
-import Charactor.Player2;
-public class FireAttack implements Attackable{
+
+// Damage is handled by burn ticks in Controller, not here
+public class FireAttack implements Attackable {
     @Override
-    public void attack(BasePlayer enemy){
-        enemy.decreaseHp(2);
-    }
+    public void attack(BasePlayer enemy) {}
 }
