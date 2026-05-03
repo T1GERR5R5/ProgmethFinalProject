@@ -126,22 +126,35 @@ public class Main extends Application {
 
     // ===== DRAW BACKGROUND =====
     void setUpBackground(GraphicsContext gc) {
+        // วาดพื้นหลังเดิมของคุณ
         gc.setFill(Color.LIGHTBLUE);
         gc.fillRect(0, 0, 800, 400);
-
         gc.setFill(Color.DARKGREEN);
         gc.fillRect(0, 300, 800, 100);
 
-        // Player 1
-        gc.setFill(Color.RED);
-        gc.fillRect(200, 250, 50, 50);
+        // --- วาด Player 1 (หมา) ---
+        if (p1.getSprite() != null) {
+            // วาดรูปที่ตำแหน่ง x=200, y=240 (ปรับ y เล็กน้อยเพื่อให้ยืนบนพื้นพอดี)
+            gc.drawImage(p1.getSprite(), 200, 240, 80, 80);
+        } else {
+            gc.setFill(Color.RED);
+            gc.fillRect(200, 250, 50, 50);
+        }
+
+        // --- วาด Player 2 (แมว) ---
+        // --- วาด Player 2 (แมว) ---
+        if (p2.getSprite() != null) {
+            // วาดรูปปกติที่ตำแหน่ง x=550, y=240 ด้วยขนาด 80x80
+            gc.drawImage(p2.getSprite(), 520, 240, 80, 80);
+        } else {
+            // Fallback กรณีรูปไม่โหลด
+            gc.setFill(Color.BLUE);
+            gc.fillRect(550, 250, 50, 50);
+        }
+
+        // วาดแถบ HP สีเทาด้านหลัง (เหมือนเดิม)
         gc.setFill(Color.GRAY);
         gc.fillRect(20, 20, barWidth, barHeight);
-
-        // Player 2
-        gc.setFill(Color.BLUE);
-        gc.fillRect(550, 250, 50, 50);
-        gc.setFill(Color.GRAY);
         gc.fillRect(800 - barWidth - 20, 20, barWidth, barHeight);
     }
 
