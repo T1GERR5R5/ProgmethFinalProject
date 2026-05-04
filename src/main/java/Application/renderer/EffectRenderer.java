@@ -1,6 +1,7 @@
 package Application.renderer;
 
 import Application.Controller;
+import Application.Projectile;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
@@ -17,6 +18,8 @@ public class EffectRenderer {
     private final List<double[]> fireParticles = new ArrayList<>();
     private final List<double[]> iceParticles  = new ArrayList<>();
     private final List<double[]> windParticles = new ArrayList<>();
+
+    private static final double GROUND_Y = Projectile.GROUND_Y;
 
     public EffectRenderer(GraphicsContext gc, Controller controller) {
         this.gc = gc; this.controller = controller;
@@ -43,13 +46,13 @@ public class EffectRenderer {
             gc.setFill(Color.ORANGERED);
             gc.setFont(Font.font(13));
             gc.fillText("BURNING! (" + controller.getBurnTicksLeft() + ")",
-                        charX(controller.getBurnTargetPlayer()) - 2, 226);
+                        charX(controller.getBurnTargetPlayer()) - 2, GROUND_Y - 9);
         }
         if (controller.getWindTargetPlayer() != 0) {
             gc.setFill(Color.color(0.2, 0.9, 0.5));
             gc.setFont(Font.font(13));
             gc.fillText("WIND! (" + controller.getWindTurnsLeft() + ")",
-                        charX(controller.getWindTargetPlayer()) - 2, 238);
+                        charX(controller.getWindTargetPlayer()) - 2, GROUND_Y + 3);
         }
     }
 
@@ -59,7 +62,7 @@ public class EffectRenderer {
         double cx = charX(controller.getBurnTargetPlayer());
         double pulse = 0.35 + 0.2 * Math.sin(controller.getBurnFrameTimer() * 0.25);
         gc.setFill(Color.color(1.0, 0.35, 0.0, pulse));
-        gc.fillOval(cx + 5, 295, 70, 18);
+        gc.fillOval(cx + 5, GROUND_Y + 60, 70, 18);
     }
 
     private void emitFireParticles() {
@@ -68,7 +71,7 @@ public class EffectRenderer {
         for (int i = 0; i < 4; i++) {
             double life = 35 + Math.random() * 20;
             fireParticles.add(new double[]{
-                cx + 8 + Math.random() * 64, 255 + Math.random() * 50,
+                cx + 8 + Math.random() * 64, GROUND_Y + 15 + Math.random() * 50,
                 (Math.random() - 0.5) * 1.5, -1.5 - Math.random() * 2.0, life, life
             });
         }
@@ -79,12 +82,12 @@ public class EffectRenderer {
     private void drawIceEffect() {
         int    fp       = controller.getFrozenPlayer();
         double cx       = charX(fp) + 40;
-        double cy       = 280;
+        double cy       = GROUND_Y + 45;
         int    timer    = controller.getFrozenDisplayTimer();
         double progress = 1.0 - (timer / (double) Controller.FROZEN_DISPLAY_FRAMES);
 
         gc.setFill(Color.color(0.2, 0.6, 1.0, 0.2 + progress * 0.3));
-        gc.fillRect(charX(fp) - 2, 238, 84, 84);
+        gc.fillRect(charX(fp) - 2, GROUND_Y + 3, 84, 84);
 
         gc.setStroke(Color.color(0.75, 0.93, 1.0, 0.85));
         gc.setLineWidth(1.5);
@@ -103,13 +106,13 @@ public class EffectRenderer {
         }
         gc.setFill(Color.color(0.55, 0.9, 1.0));
         gc.setFont(Font.font(13));
-        gc.fillText("FROZEN!", charX(fp) + 12, 226);
-        gc.fillText("Skip in " + (int) Math.ceil(timer / 60.0) + "s", charX(fp) + 8, 362);
+        gc.fillText("FROZEN!", charX(fp) + 12, GROUND_Y - 9);
+        gc.fillText("Skip in " + (int) Math.ceil(timer / 60.0) + "s", charX(fp) + 8, GROUND_Y + 92);
     }
 
     private void emitIceParticles() {
         if (controller.getFrozenPlayer() == 0) return;
-        double cx = charX(controller.getFrozenPlayer()) + 40, cy = 280;
+        double cx = charX(controller.getFrozenPlayer()) + 40, cy = GROUND_Y + 45;
         for (int i = 0; i < 3; i++) {
             double angle = Math.random() * Math.PI * 2;
             double speed = 1.0 + Math.random() * 2.5;
@@ -126,7 +129,7 @@ public class EffectRenderer {
     private void drawWindOverlay() {
         int wp = controller.getWindTargetPlayer();
         gc.setFill(Color.color(0.15, 0.85, 0.45, 0.18));
-        gc.fillRect(charX(wp) - 2, 238, 84, 84);
+        gc.fillRect(charX(wp) - 2, GROUND_Y + 3, 84, 84);
     }
 
     private void emitWindParticles() {
@@ -136,7 +139,7 @@ public class EffectRenderer {
         double dir = wp == 2 ? -1.0 : 1.0;
         for (int i = 0; i < 3; i++) {
             double startX = cx + dir * (10 + Math.random() * 30);
-            double startY = 245 + Math.random() * 70;
+            double startY = GROUND_Y + 10 + Math.random() * 60;
             double speed  = 2.5 + Math.random() * 2.5;
             double life   = 18 + Math.random() * 14;
             windParticles.add(new double[]{

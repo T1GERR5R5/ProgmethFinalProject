@@ -37,7 +37,6 @@ public class ProjectileRenderer {
         double dirY = -Math.sin(rad);
 
         drawAimArrow(sx, sy, dirX, dirY);
-        drawTrajectoryDots(proj, p1Turn);
         drawTargetBox(p1Turn);
         drawAngleLabel(proj, p1Turn);
     }
@@ -54,7 +53,7 @@ public class ProjectileRenderer {
         double[][] pts = proj.getTrajectoryPoints(22);
         for (int i = 0; i < pts.length; i++) {
             double px = pts[i][0], py = pts[i][1];
-            if (px < 0 || px > 800 || py > 308) break;
+            if (px < 0 || px > 800 || py > Projectile.BOX_Y2) break;
             double alpha = 0.9 - (i / 22.0) * 0.55;
             double r     = 5   - (i / 22.0) * 2;
             gc.setFill(isInTargetBox(px, py, p1Turn)
@@ -79,6 +78,7 @@ public class ProjectileRenderer {
     }
 
     private void drawAngleLabel(Projectile proj, boolean p1Turn) {
+        /*
         double labelX = (p1Turn ? 105 : 535) + proj.getLaunchXOffset();
         gc.setFont(Font.font(13));
         if (proj.isAngleLocked()) {
@@ -90,6 +90,7 @@ public class ProjectileRenderer {
             gc.fillText(String.format("Angle: %.0f°", proj.getAngle()), labelX, 236);
             gc.fillText("SPACE to lock & fire!", labelX, 358);
         }
+        */
     }
 
     // ── Flying ────────────────────────────────────────────────────────────────

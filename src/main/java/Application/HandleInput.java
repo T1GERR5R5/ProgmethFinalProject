@@ -18,6 +18,7 @@ public class HandleInput {
             switch (event.getCode()) {
                 case SPACE -> controller.handleSpacebar();
                 // Keyboard shortcuts still work as fallback
+                /*
                 case Q, U  -> controller.handleAbility();
                 case A     -> controller.selectAttack(new NormalAttack());
                 case S     -> controller.selectAttack(new FireAttack());
@@ -27,6 +28,7 @@ public class HandleInput {
                 case K     -> controller.selectAttack(new FireAttack());
                 case L     -> controller.selectAttack(new IceAttack());
                 case SEMICOLON -> controller.selectAttack(new WindAttack());
+                */
                 default    -> {}
             }
         });

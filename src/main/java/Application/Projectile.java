@@ -25,17 +25,19 @@ public class Projectile {
     public static final double GRAVITY       = 0.35;
     public static final double MIN_ANGLE     = 3;
     public static final double MAX_ANGLE     = 80;
-    public static final double ANGLE_SPEED   = 0.5; // degrees per frame, auto-oscillation
+    public static final double ANGLE_SPEED   = 0.5;
     private static final int   TRAIL_MAX     = 10;
 
-    // P1 sprite at x=100, P2 sprite at x=620, both width=80
-    public static final double P1_START_X = 182, P1_START_Y = 262; // P1 right edge
-    public static final double P2_START_X = 618, P2_START_Y = 262; // P2 left edge
+    public static final double GROUND_Y = 270.0;
 
-    // Hit boxes matching the drawn sprite bounds
+    // P1 sprite at x=100, P2 sprite at x=620, both width=80
+    public static final double P1_START_X = 182, P1_START_Y = GROUND_Y + 25;
+    public static final double P2_START_X = 618, P2_START_Y = GROUND_Y + 25;
+
+    // Hit boxes matching the drawn sprite bounds (sprite drawn at GROUND_Y+5, size 80x80)
     public static final double P1_BOX_X1 = 98,  P1_BOX_X2 = 182;
     public static final double P2_BOX_X1 = 618, P2_BOX_X2 = 702;
-    public static final double BOX_Y1 = 238, BOX_Y2 = 322;
+    public static final double BOX_Y1 = GROUND_Y + 5, BOX_Y2 = GROUND_Y + 85;
 
     public void startAiming(boolean isPlayer1Turn) {
         this.isPlayer1Turn = isPlayer1Turn;
@@ -88,7 +90,7 @@ public class Projectile {
         }
 
         // Miss: off-screen or below ground
-        if (x < 0 || x > 800 || y > 306) {
+        if (x < 0 || x > 800 || y > GROUND_Y + 90) {
             hit = false;
             state = State.IDLE;
         }

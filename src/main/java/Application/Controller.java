@@ -2,12 +2,10 @@ package Application;
 
 import AttackLogic.*;
 import Charactor.BasePlayer;
-import Charactor.Player1;
-import Charactor.Player2;
 
 public class Controller {
-    private Player1 p1;
-    private Player2 p2;
+    private BasePlayer p1;
+    private BasePlayer p2;
     private boolean player1Turn = true;
     private Projectile projectile = new Projectile();
     private String projectileResult = "";
@@ -19,7 +17,7 @@ public class Controller {
     private int burnTargetPlayer = 0;
     private int burnTicksLeft    = 0;
     private int burnFrameTimer   = 0;
-    public static final int BURN_TICKS           = 3;
+    public static final int BURN_TICKS           = 2;
     public static final int BURN_FRAMES_PER_TICK = 60;
 
     // ── Freeze (IceAttack): target's next turn is auto-skipped ─────────────
@@ -45,7 +43,7 @@ public class Controller {
     public static final int ABILITY_COOLDOWN = 4;
     private int[] abilityCooldown = {0, 0};
 
-    public Controller(Player1 p1, Player2 p2) {
+    public Controller(BasePlayer p1, BasePlayer p2) {
         this.p1 = p1;
         this.p2 = p2;
     }
@@ -116,7 +114,9 @@ public class Controller {
             windTargetPlayer   = player1Turn ? 2 : 1;
             windTurnsLeft      = WIND_TURNS;
             windFrameCounter   = 0;
-            System.out.println(who + " WIND HIT! P" + windTargetPlayer + " blown for " + WIND_TURNS + " turns!");
+            BasePlayer windTarget = player1Turn ? p2 : p1;
+            windTarget.decreaseHp(1);
+            System.out.println(who + " WIND HIT! P" + windTargetPlayer + " blown for " + WIND_TURNS + " turns! 1 damage!");
         } else {
             BasePlayer target = player1Turn ? p2 : p1;
             selectedAttack.attack(target);
@@ -273,6 +273,10 @@ public class Controller {
     public int    getWindTargetPlayer()        { return windTargetPlayer; }
     public int    getWindTurnsLeft()           { return windTurnsLeft; }
     public int    getAbilityCooldown(boolean p1) { return abilityCooldown[p1 ? 0 : 1]; }
+
+    public String getAbilityLabel(boolean isP1) {
+        return isP1 ? p1.getAbilityLabel() : p2.getAbilityLabel();
+    }
 
     public String getAndClearProjectileResult() {
         String r = projectileResult;

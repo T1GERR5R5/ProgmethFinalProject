@@ -1,9 +1,9 @@
 package Application;
 
 import Application.renderer.*;
-import Charactor.Player1;
-import Charactor.Player2;
+import Charactor.BasePlayer;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 
@@ -11,8 +11,8 @@ public class GameRenderer {
 
     private final GraphicsContext gc;
     private final Controller      controller;
-    private final Player1         p1;
-    private final Player2         p2;
+    private final BasePlayer      p1;
+    private final BasePlayer      p2;
 
     private final HudRenderer        hud;
     private final SkillButtonRenderer buttons;
@@ -22,13 +22,20 @@ public class GameRenderer {
     private String lastResult  = "";
     private int    resultTimer = 0;
 
-    public GameRenderer(GraphicsContext gc, Controller controller, Player1 p1, Player2 p2) {
+    private Image backgroundImage;
+
+    public GameRenderer(GraphicsContext gc, Controller controller, BasePlayer p1, BasePlayer p2) {
         this.gc = gc; this.controller = controller;
         this.p1 = p1; this.p2 = p2;
         hud                = new HudRenderer(gc, controller, p1, p2);
         buttons            = new SkillButtonRenderer(gc, controller);
         effects            = new EffectRenderer(gc, controller);
         projectileRenderer = new ProjectileRenderer(gc, controller);
+
+        try {
+            var stream = getClass().getResourceAsStream("/images/background.jpg");
+            if (stream != null) backgroundImage = new Image(stream);
+        } catch (Exception ignored) {}
     }
 
     public void onResult(String result) {
@@ -55,21 +62,24 @@ public class GameRenderer {
     // ── Background + sprites ─────────────────────────────────────────────────
 
     private void drawBackground() {
-        gc.setFill(Color.LIGHTBLUE);
-        gc.fillRect(0, 0, 800, 400);
-        gc.setFill(Color.DARKGREEN);
-        gc.fillRect(0, 300, 800, 100);
+        if (backgroundImage != null) {
+            gc.drawImage(backgroundImage, 0, 0, 800, 400);
+        }
 
+        // Characters
         double p1X = charX(1), p2X = charX(2);
-        if (p1.getSprite() != null) gc.drawImage(p1.getSprite(), p1X, 240, 80, 80);
-        else { gc.setFill(Color.RED);  gc.fillRect(p1X, 250, 50, 50); }
-        if (p2.getSprite() != null) gc.drawImage(p2.getSprite(), p2X, 240, 80, 80);
-        else { gc.setFill(Color.BLUE); gc.fillRect(p2X, 250, 50, 50); }
-
-        gc.setFill(Color.GRAY);
-        gc.fillRect(20, 20, 250, 20);
-        gc.fillRect(800 - 250 - 20, 20, 250, 20);
+        if (p1.getSprite() != null) gc.drawImage(p1.getSprite(), p1X, GROUND_Y + 5, 80, 80);
+        else { gc.setFill(Color.RED);  gc.fillRect(p1X, GROUND_Y - 20, 50, 50); }
+        if (p2.getSprite() != null) {
+            gc.save();
+            gc.scale(-1, 1);
+            gc.drawImage(p2.getSprite(), -(p2X + 80), GROUND_Y + 5, 80, 80);
+            gc.restore();
+        } else { gc.setFill(Color.BLUE); gc.fillRect(p2X, GROUND_Y - 20, 50, 50); }
     }
+
+    private static final double GROUND_Y = Projectile.GROUND_Y;
+ 
 
     // ── Result flash ─────────────────────────────────────────────────────────
 
@@ -77,7 +87,10 @@ public class GameRenderer {
         if (resultTimer <= 0) return;
         resultTimer--;
         gc.setFont(Font.font(26));
-        gc.setFill(lastResult.contains("HIT") ? Color.YELLOW : Color.ORANGERED);
+        Color col = lastResult.contains("HIT") ? Color.YELLOW : Color.ORANGERED;
+        gc.setFill(Color.color(0, 0, 0, 0.7));
+        gc.fillText(lastResult, 272, 197);
+        gc.setFill(col);
         gc.fillText(lastResult, 270, 195);
     }
 

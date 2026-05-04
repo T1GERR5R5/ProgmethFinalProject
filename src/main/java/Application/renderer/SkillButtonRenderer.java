@@ -49,8 +49,11 @@ public class SkillButtonRenderer {
             controller.getWindCooldown(isP1),
             controller.getAbilityCooldown(isP1)
         };
-        Color abilityColor = isP1 ? Color.color(0.4, 1.0, 0.4) : Color.color(1.0, 0.85, 0.2);
-        String[] labels = {"NRM", "FIRE", "ICE", "WIND", isP1 ? "HEAL" : "AIM"};
+        String abilityLabel = controller.getAbilityLabel(isP1);
+        Color abilityColor  = abilityLabel.equals("HEAL")
+                            ? Color.color(0.4, 1.0, 0.4)
+                            : Color.color(1.0, 0.85, 0.2);
+        String[] labels = {"NRM", "FIRE", "ICE", "WIND", abilityLabel};
 
         gc.setGlobalAlpha(canAct ? 1.0 : 0.38);
 
@@ -69,7 +72,7 @@ public class SkillButtonRenderer {
                 gc.setLineWidth(2.5);
                 gc.strokeOval(cx - BTN_R - 2, BTN_Y - BTN_R - 2, (BTN_R + 2) * 2, (BTN_R + 2) * 2);
             }
-            if (i == 4 && !isP1 && controller.getProjectile().isAngleLocked()) {
+            if (i == 4 && controller.getProjectile().isAngleLocked() && controller.isPlayer1Turn() == isP1) {
                 gc.setStroke(Color.color(1.0, 0.9, 0.3));
                 gc.setLineWidth(2.5);
                 gc.strokeOval(cx - BTN_R - 2, BTN_Y - BTN_R - 2, (BTN_R + 2) * 2, (BTN_R + 2) * 2);
