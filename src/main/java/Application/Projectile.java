@@ -14,6 +14,13 @@ public class Projectile {
     private boolean isPlayer1Turn;
     private final List<double[]> trail = new ArrayList<>();
 
+    // Wind offsets — set each frame by Controller
+    private double launchXOffset = 0; // shifts the shooter's start position
+    private double targetXOffset = 0; // shifts the target's hit box
+
+    // Cat perfect-aim: freeze angle at the calculated value
+    private boolean angleLocked = false;
+
     public static final double LAUNCH_SPEED  = 16.0;
     public static final double GRAVITY       = 0.35;
     public static final double MIN_ANGLE     = 3;
@@ -32,7 +39,7 @@ public class Projectile {
 
     public void startAiming(boolean isPlayer1Turn) {
         this.isPlayer1Turn = isPlayer1Turn;
-        this.angle    = MIN_ANGLE; // always sweep from flat upward
+        if (!angleLocked) this.angle = MIN_ANGLE; // preserve locked angle if set
         this.angleDir = 1;
         this.hit      = false;
         trail.clear();
@@ -41,7 +48,7 @@ public class Projectile {
 
     public void fire() {
         if (state != State.AIMING) return;
-        x  = isPlayer1Turn ? P1_START_X : P2_START_X;
+        x  = (isPlayer1Turn ? P1_START_X : P2_START_X) + launchXOffset;
         y  = isPlayer1Turn ? P1_START_Y : P2_START_Y;
         double rad = Math.toRadians(angle);
         vx = isPlayer1Turn ? LAUNCH_SPEED * Math.cos(rad) : -LAUNCH_SPEED * Math.cos(rad);
@@ -51,11 +58,13 @@ public class Projectile {
     }
 
     public void update() {
-        // Auto-oscillate angle while aiming
+        // Auto-oscillate angle while aiming (skip if angle is locked by Cat ability)
         if (state == State.AIMING) {
-            angle += ANGLE_SPEED * angleDir;
-            if (angle >= MAX_ANGLE) { angle = MAX_ANGLE; angleDir = -1; }
-            else if (angle <= MIN_ANGLE) { angle = MIN_ANGLE; angleDir =  1; }
+            if (!angleLocked) {
+                angle += ANGLE_SPEED * angleDir;
+                if (angle >= MAX_ANGLE) { angle = MAX_ANGLE; angleDir = -1; }
+                else if (angle <= MIN_ANGLE) { angle = MIN_ANGLE; angleDir =  1; }
+            }
             return;
         }
 
@@ -68,9 +77,9 @@ public class Projectile {
         y += vy;
         vy += GRAVITY;
 
-        // Hit detection
-        boolean inP2 = x >= P2_BOX_X1 && x <= P2_BOX_X2 && y >= BOX_Y1 && y <= BOX_Y2;
-        boolean inP1 = x >= P1_BOX_X1 && x <= P1_BOX_X2 && y >= BOX_Y1 && y <= BOX_Y2;
+        // Hit detection — target box shifts with wind offset
+        boolean inP2 = x >= P2_BOX_X1 + targetXOffset && x <= P2_BOX_X2 + targetXOffset && y >= BOX_Y1 && y <= BOX_Y2;
+        boolean inP1 = x >= P1_BOX_X1 + targetXOffset && x <= P1_BOX_X2 + targetXOffset && y >= BOX_Y1 && y <= BOX_Y2;
 
         if ((isPlayer1Turn && inP2) || (!isPlayer1Turn && inP1)) {
             hit = true;
@@ -88,7 +97,7 @@ public class Projectile {
     // Returns (x,y) sample points along the predicted parabolic arc.
     // Uses kinematic equations: x(t) = x0 + vx*t,  y(t) = y0 + vy*t + 0.5*g*t²
     public double[][] getTrajectoryPoints(int count) {
-        double sx = isPlayer1Turn ? P1_START_X : P2_START_X;
+        double sx = (isPlayer1Turn ? P1_START_X : P2_START_X) + launchXOffset;
         double sy = isPlayer1Turn ? P1_START_Y : P2_START_Y;
         double rad = Math.toRadians(angle);
         double pvx = isPlayer1Turn ? LAUNCH_SPEED * Math.cos(rad) : -LAUNCH_SPEED * Math.cos(rad);
@@ -103,7 +112,13 @@ public class Projectile {
         return pts;
     }
 
-    public void reset() { state = State.IDLE; hit = false; trail.clear(); }
+    public void reset() { state = State.IDLE; hit = false; trail.clear(); launchXOffset = 0; targetXOffset = 0; angleLocked = false; }
+    public void setLaunchOffset(double off) { launchXOffset = off; }
+    public void setTargetOffset(double off) { targetXOffset = off; }
+    public double getLaunchXOffset()        { return launchXOffset; }
+    public void   setLockedAngle(double a)  { angle = a; angleLocked = true; }
+    public void   clearAngleLock()          { angleLocked = false; }
+    public boolean isAngleLocked()          { return angleLocked; }
 
     public State   getState()      { return state; }
     public boolean isHit()         { return hit; }
