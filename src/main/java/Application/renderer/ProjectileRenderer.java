@@ -63,19 +63,7 @@ public class ProjectileRenderer {
         }
     }
 
-    private void drawTargetBox(boolean p1Turn) {
-        double off = p1Turn ? controller.getWindXOffset(2) : controller.getWindXOffset(1);
-        gc.setStroke(Color.color(1, 1, 0, 0.55));
-        gc.setLineWidth(2);
-        if (p1Turn)
-            gc.strokeRect(Projectile.P2_BOX_X1 + off, Projectile.BOX_Y1,
-                          Projectile.P2_BOX_X2 - Projectile.P2_BOX_X1,
-                          Projectile.BOX_Y2    - Projectile.BOX_Y1);
-        else
-            gc.strokeRect(Projectile.P1_BOX_X1 + off, Projectile.BOX_Y1,
-                          Projectile.P1_BOX_X2 - Projectile.P1_BOX_X1,
-                          Projectile.BOX_Y2    - Projectile.BOX_Y1);
-    }
+    private void drawTargetBox(boolean p1Turn) {}
 
     private void drawAngleLabel(Projectile proj, boolean p1Turn) {
         /*

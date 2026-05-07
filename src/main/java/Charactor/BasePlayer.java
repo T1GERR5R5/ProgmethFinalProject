@@ -7,6 +7,7 @@ public abstract class BasePlayer {
     private int   maxHp;
     private int   hp;
     private Image sprite;
+    private boolean perfectAimReady = false;
 
     protected BasePlayer(int maxHp, int startHp) {
         this.maxHp = maxHp;
@@ -23,8 +24,7 @@ public abstract class BasePlayer {
     public abstract String getAbilityLabel();
     public abstract String getSpritePath();
 
-    // Default: no perfect-aim effect. CatPlayer overrides these.
-    public boolean isPerfectAimReady()  { return false; }
+    public boolean isPerfectAimReady()  { return perfectAimReady; }
     public void    resetAbilityEffect() {}
 
     public Image getSprite()            { return sprite; }

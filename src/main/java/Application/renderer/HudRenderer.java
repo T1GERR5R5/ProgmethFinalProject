@@ -122,16 +122,7 @@ public class HudRenderer {
         */
     }
 
-    private void drawAttackBadge() {
-        String selName = controller.getSelectedAttackName();
-        Projectile.State state = controller.getProjectile().getState();
-        if (!selName.isEmpty() && state != Projectile.State.FLYING) {
-            double badgeX = controller.isPlayer1Turn() ? 104 : 618;
-            gc.setFill(attackColor(selName));
-            gc.setFont(Font.font(13));
-            gc.fillText("[ " + selName + " ]", badgeX, 226);
-        }
-    }
+    private void drawAttackBadge() {}
 
     private boolean isFrozenNow() {
         return controller.getFrozenPlayer() != 0 &&
