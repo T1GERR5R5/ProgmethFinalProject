@@ -28,8 +28,13 @@ public class StatusManager {
                 BasePlayer target = (burnTargetPlayer == 1) ? p1 : p2;
                 target.decreaseHp(1);
                 System.out.println("P" + burnTargetPlayer + " burn tick! " + burnTicksLeft + " left");
+
+                if (burnTicksLeft <= 0) {
+                    SoundManager.stopFire();
+                }
             }
         } else {
+            if (burnTargetPlayer != 0) SoundManager.stopFire();
             burnTargetPlayer = 0;
         }
     }
@@ -39,6 +44,7 @@ public class StatusManager {
             frozenDisplayTimer--;
             if (frozenDisplayTimer <= 0) {
                 System.out.println("P" + frozenPlayer + " frozen turn skipped!");
+                SoundManager.stopIce();
                 frozenPlayer = 0;
                 return true; // ส่งค่า true เพื่อบอกให้ Controller ข้ามเทิร์น
             }
@@ -54,12 +60,14 @@ public class StatusManager {
         burnTargetPlayer = targetNum;
         burnTicksLeft    = BURN_TICKS;
         burnFrameTimer   = 0;
+        SoundManager.playFireLoop();
     }
 
     public void applyIce(int targetNum, BasePlayer target) {
         frozenPlayer       = targetNum;
         frozenDisplayTimer = FROZEN_DISPLAY_FRAMES;
         target.decreaseHp(1);
+        SoundManager.playIceLoop();
     }
 
     public void applyWind(int targetNum, BasePlayer target) {
@@ -67,12 +75,14 @@ public class StatusManager {
         windTurnsLeft    = WIND_TURNS;
         windFrameCounter = 0;
         target.decreaseHp(1);
+        SoundManager.playWindLoop();
     }
 
     public void onTurnSwitched(int currentPlayerNum) {
         if (windTargetPlayer == currentPlayerNum) {
             windTurnsLeft--;
             if (windTurnsLeft <= 0) {
+                SoundManager.stopWind();
                 windTargetPlayer = 0;
                 windFrameCounter = 0;
             }

@@ -1,6 +1,7 @@
 package application.scene;
 
 import application.Main;
+import game.SoundManager;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -19,6 +20,8 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 
+import static game.SoundManager.playLobbyBGM;
+
 
 public class StartScene {
     public ImageView bg;
@@ -31,6 +34,7 @@ public class StartScene {
         bg.setFitWidth(800);
         bg.setFitHeight(400);
         bg.setPreserveRatio(false);
+        SoundManager.playLobbyBGM();
 
         Region overlay = new Region();
         overlay.setPrefSize(800, 400);

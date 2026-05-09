@@ -2,6 +2,7 @@ package application.scene;
 
 import application.Main;
 import character.BasePlayer;
+import game.SoundManager;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -37,6 +38,7 @@ public class EndScene {
         bg.setFitWidth(800);
         bg.setFitHeight(400);
         bg.setPreserveRatio(false);
+        SoundManager.playLobbyBGM();
 
         // Dark overlay so text pops
         Region overlay = new Region();

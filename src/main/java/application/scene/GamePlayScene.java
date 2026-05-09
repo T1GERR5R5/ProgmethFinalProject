@@ -4,6 +4,7 @@ import application.HandleInput;
 import application.Main;
 import character.BasePlayer;
 import game.Controller;
+import game.SoundManager;
 import javafx.animation.AnimationTimer;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
@@ -29,6 +30,7 @@ public class GamePlayScene {
 
         Canvas canvas = new Canvas(800, 400);
         GraphicsContext gc = canvas.getGraphicsContext2D();
+        SoundManager.playFightBGM();
 
         controller = new Controller(p1, p2);
         renderer = new GameRenderer(gc, controller, p1, p2);
