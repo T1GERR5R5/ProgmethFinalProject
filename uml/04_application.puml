@@ -1,0 +1,88 @@
+@startuml 04_application
+!pragma layout smetana
+skinparam classAttributeIconSize 0
+skinparam backgroundColor #FAFBFF
+skinparam class {
+  BackgroundColor #EEF3FF
+  BorderColor #3A5CC5
+  HeaderBackgroundColor #84a0f6
+  FontColor #FFFFFF
+  ArrowColor #2255AA
+  AttributeFontColor #222222
+}
+skinparam note {
+  BackgroundColor #FFF9E6
+  BorderColor #C8A800
+}
+
+title <b>Application Package – Key Classes</b>
+
+class Main {
+  + start(stage : Stage) : void
+  + showMainMenu() : void
+  + showCharacterSelect() : void
+  + startGame(p1, p2 : BasePlayer) : void
+  + showEndScene(winner : String) : void
+}
+
+class Controller {
+  - p1, p2 : BasePlayer
+  - projectile : Projectile
+  - selectedAttack : Attackable
+  - burnTicksLeft : int
+  - frozenPlayer : int
+  - windTurnsLeft : int
+  + {static} BURN_TICKS = 2
+  + {static} FIRE_COOLDOWN = 3
+  + {static} ICE_COOLDOWN = 2
+  + {static} WIND_COOLDOWN = 2
+  + {static} ABILITY_COOLDOWN = 4
+  + selectAttack(attack : Attackable) : void
+  + handleSpacebar() : void
+  + handleAbility() : void
+  + update() : void
+  + getWindXOffset(playerNum : int) : double
+}
+
+class Projectile {
+  - state : State
+  - x, y, vx, vy : double
+  - angle : double
+  - trail : List<double[]>
+  + {static} GROUND_Y = 270.0
+  + {static} LAUNCH_SPEED = 16.0
+  + {static} GRAVITY = 0.35
+  + startAiming(isPlayer1Turn : boolean) : void
+  + fire() : void
+  + update() : void
+  + getTrajectoryPoints(count : int) : double[][]
+  + setLockedAngle(a : double) : void
+}
+
+class HandleInput {
+  + process() : void
+}
+
+note right of HandleInput
+  <b>Controls</b>
+  SPACE → aim / fire
+  Mouse click → select attack
+  Mouse click → use ability
+end note
+
+class GameRenderer {
+  + render(ctrl, p1, p2) : void
+}
+
+class CharacterSelectScene {
+  + getScene() : Scene
+}
+
+Main --> Controller : creates
+Main --> GameRenderer : creates
+Main --> CharacterSelectScene : creates
+Controller "1" o-- "1" Projectile
+HandleInput --> Controller : delegates
+GameRenderer --> Controller : reads state
+
+@enduml
