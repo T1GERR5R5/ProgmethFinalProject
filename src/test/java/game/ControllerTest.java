@@ -131,7 +131,7 @@ class ControllerTest {
     void testFireHitSetsBurnOnP2() {
         fireAndWait(new FireAttack(), 15.0, 200);
         assertEquals(2, controller.getBurnTargetPlayer());
-        assertEquals(Controller.BURN_TICKS, controller.getBurnTicksLeft());
+        assertEquals(StatusManager.BURN_TICKS, controller.getBurnTicksLeft());
     }
 
     @Test
@@ -144,7 +144,7 @@ class ControllerTest {
     void testBurnTickDealsDamage() {
         fireAndWait(new FireAttack(), 15.0, 200);
         int hpAfterHit = p2.getHp();
-        for (int i = 0; i < Controller.BURN_FRAMES_PER_TICK; i++) controller.update();
+        for (int i = 0; i < StatusManager.BURN_FRAMES_PER_TICK; i++) controller.update();
         assertEquals(hpAfterHit - 1, p2.getHp());
     }
 
@@ -152,7 +152,7 @@ class ControllerTest {
     void testBurnTicksDecrementAfterEachTick() {
         fireAndWait(new FireAttack(), 15.0, 200);
         int ticksBefore = controller.getBurnTicksLeft();
-        for (int i = 0; i < Controller.BURN_FRAMES_PER_TICK; i++) controller.update();
+        for (int i = 0; i < StatusManager.BURN_FRAMES_PER_TICK; i++) controller.update();
         assertEquals(ticksBefore - 1, controller.getBurnTicksLeft());
     }
 
@@ -179,7 +179,7 @@ class ControllerTest {
     @Test
     void testFrozenPlayerTurnIsAutoSkipped() {
         fireAndWait(new IceAttack(), 15.0, 200);
-        for (int i = 0; i < Controller.FROZEN_DISPLAY_FRAMES + 10; i++) controller.update();
+        for (int i = 0; i < StatusManager.FROZEN_DISPLAY_FRAMES + 10; i++) controller.update();
         assertTrue(controller.isPlayer1Turn());
     }
 
@@ -189,7 +189,7 @@ class ControllerTest {
     void testWindHitSetsWindOnP2() {
         fireAndWait(new WindAttack(), 15.0, 200);
         assertEquals(2, controller.getWindTargetPlayer());
-        assertEquals(Controller.WIND_TURNS, controller.getWindTurnsLeft());
+        assertEquals(StatusManager.WIND_TURNS, controller.getWindTurnsLeft());
     }
 
     @Test
@@ -224,7 +224,7 @@ class ControllerTest {
     @Test
     void testIceIsRejectedWhileOnCooldown() {
         fireAndWait(new IceAttack(), 15.0, 200);
-        for (int i = 0; i < Controller.FROZEN_DISPLAY_FRAMES + 10; i++) controller.update();
+        for (int i = 0; i < StatusManager.FROZEN_DISPLAY_FRAMES + 10; i++) controller.update();
         assertTrue(controller.getIceCooldown(true) > 0);
         controller.selectAttack(new IceAttack());
         controller.handleSpacebar();

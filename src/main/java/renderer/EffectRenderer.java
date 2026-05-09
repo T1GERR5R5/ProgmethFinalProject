@@ -2,6 +2,7 @@ package renderer;
 
 import game.Controller;
 import game.Projectile;
+import game.StatusManager;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
@@ -79,7 +80,7 @@ public class EffectRenderer {
         double cx       = charX(fp) + 40;
         double cy       = GROUND_Y + 45;
         int    timer    = controller.getFrozenDisplayTimer();
-        double progress = 1.0 - (timer / (double) Controller.FROZEN_DISPLAY_FRAMES);
+        double progress = 1.0 - (timer / (double) StatusManager.FROZEN_DISPLAY_FRAMES);
 
         gc.setFill(Color.color(0.2, 0.6, 1.0, 0.2 + progress * 0.3));
         gc.fillRect(charX(fp) - 2, GROUND_Y + 3, 84, 84);
