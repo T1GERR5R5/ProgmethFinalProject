@@ -26,7 +26,7 @@ public class Controller {
     private final Map<String, int[]> cooldowns = new HashMap<>();
     private final int[] abilityCooldown = {0, 0};
 
-    // ── Managers (แบ่งเบาภาระ) ────────────────────────────────────────────────
+    // ── Managers ───────────────────────────────────────────────────────────────
     private final StatusManager statusManager = new StatusManager();
 
     public Controller(BasePlayer p1, BasePlayer p2) {
