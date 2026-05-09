@@ -11,6 +11,7 @@ public class HudRenderer {
     private static final double PANEL_W    = 268;
     private static final double PANEL_H    = 36;
     private static final double P2_PANEL_X = 800 - 12 - PANEL_W;
+    private static final double P1_PANEL_X = 12;
     private static final double BAR_INN_W  = 258;
 
     private final GraphicsContext gc;
@@ -19,22 +20,19 @@ public class HudRenderer {
     private final BasePlayer      p2;
 
     public HudRenderer(GraphicsContext gc, Controller controller, BasePlayer p1, BasePlayer p2) {
-        this.gc = gc; this.controller = controller;
-        this.p1 = p1; this.p2 = p2;
+        this.gc = gc;
+        this.controller = controller;
+        this.p1 = p1;
+        this.p2 = p2;
     }
 
     public void draw() {
-        drawHpBars();
-        drawTurnIndicator();
-    }
-
-    private void drawHpBars() {
         gc.setFill(Color.color(0.07, 0.07, 0.12, 0.86));
-        gc.fillRoundRect(12, 4, PANEL_W, PANEL_H, 10, 10);
+        gc.fillRoundRect(P1_PANEL_X, 4, PANEL_W, PANEL_H, 10, 10);
         gc.fillRoundRect(P2_PANEL_X, 4, PANEL_W, PANEL_H, 10, 10);
         gc.setStroke(Color.color(0.46, 0.48, 0.58, 0.88));
         gc.setLineWidth(1.5);
-        gc.strokeRoundRect(12, 4, PANEL_W, PANEL_H, 10, 10);
+        gc.strokeRoundRect(P1_PANEL_X, 4, PANEL_W, PANEL_H, 10, 10);
         gc.strokeRoundRect(P2_PANEL_X, 4, PANEL_W, PANEL_H, 10, 10);
 
         gc.setFont(Font.font(11));
@@ -49,28 +47,32 @@ public class HudRenderer {
         gc.fillText(" " + p2.getName(), P2_PANEL_X + 21, 17);
 
         gc.setFill(Color.color(0.08, 0.08, 0.10));
-        gc.fillRoundRect(16, 21, BAR_INN_W, 16, 5, 5);
+        gc.fillRoundRect(P1_PANEL_X + 4, 21, BAR_INN_W, 16, 5, 5);
         gc.fillRoundRect(P2_PANEL_X + 4, 21, BAR_INN_W, 16, 5, 5);
-
-        double p1r = Math.max(0, p1.getHp() / (double) p1.getMaxHp());
-        gc.setFill(hpColor(p1r));
-        if (p1r > 0) gc.fillRoundRect(17, 22, BAR_INN_W * p1r, 14, 4, 4);
-
-        double p2r  = Math.max(0, p2.getHp() / (double) p2.getMaxHp());
-        double p2fw = BAR_INN_W * p2r;
-        gc.setFill(hpColor(p2r));
-        if (p2r > 0) gc.fillRoundRect(P2_PANEL_X + 4 + BAR_INN_W - p2fw, 22, p2fw, 14, 4, 4);
-
-        gc.setFill(Color.WHITE);
-        gc.setFont(Font.font(12));
-        gc.fillText(p1.getHp() + " HP", 20, 34);
-        gc.fillText(p2.getHp() + " HP", P2_PANEL_X + 7, 34);
 
         gc.setFont(Font.font(21));
         gc.setFill(Color.color(0, 0, 0, 0.6));
-        gc.fillText("VS.", 375, 36);
+        gc.fillText("VS", 394, 36);
         gc.setFill(Color.WHITE);
-        gc.fillText("VS.", 374, 35);
+        gc.fillText("VS", 393, 35);
+
+        updateHpBars();
+        drawTurnIndicator();
+    }
+
+    private void updateHpBars() {
+        double P1HpRatio = Math.max(0, p1.getHp() / (double) p1.getMaxHp());
+        gc.setFill(hpColor(P1HpRatio));
+        if (P1HpRatio > 0) gc.fillRoundRect(P1_PANEL_X + 4, 22, BAR_INN_W * P1HpRatio, 14, 4, 4);
+
+        double P2HpRatio  = Math.max(0, p2.getHp() / (double) p2.getMaxHp());
+        gc.setFill(hpColor(P2HpRatio));
+        if (P2HpRatio > 0) gc.fillRoundRect(P2_PANEL_X + 4 + BAR_INN_W *(1 - P2HpRatio), 22, BAR_INN_W * P2HpRatio, 14, 4, 4);
+
+        gc.setFill(Color.WHITE);
+        gc.setFont(Font.font(12));
+        gc.fillText(p1.getHp() + " HP", P1_PANEL_X + 7, 34);
+        gc.fillText(p2.getHp() + " HP", P2_PANEL_X + 7, 34);
     }
 
     private void drawTurnIndicator() {
@@ -81,9 +83,9 @@ public class HudRenderer {
         Color col = frozen ? Color.CYAN : Color.WHITE;
         gc.setFont(Font.font(14));
         gc.setFill(Color.color(0, 0, 0, 0.65));
-        gc.fillText(label, 336, 77);
+        gc.fillText(label, 368, 77);
         gc.setFill(col);
-        gc.fillText(label, 335, 76);
+        gc.fillText(label, 369, 76);
     }
 
     private static Color hpColor(double ratio) {

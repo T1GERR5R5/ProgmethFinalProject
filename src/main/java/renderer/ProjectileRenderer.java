@@ -13,7 +13,8 @@ public class ProjectileRenderer {
     private final Controller      controller;
 
     public ProjectileRenderer(GraphicsContext gc, Controller controller) {
-        this.gc = gc; this.controller = controller;
+        this.gc = gc;
+        this.controller = controller;
     }
 
     public void draw() {
@@ -28,7 +29,7 @@ public class ProjectileRenderer {
     private void drawAiming(Projectile proj) {
         boolean p1Turn = proj.isPlayer1Turn();
         double sx   = (p1Turn ? Projectile.P1_START_X : Projectile.P2_START_X) + proj.getLaunchXOffset();
-        double sy   = p1Turn ? Projectile.P1_START_Y : Projectile.P2_START_Y;
+        double sy   = Projectile.GROUND_Y+25;
         double rad  = Math.toRadians(proj.getAngle());
         double dirX = p1Turn ? Math.cos(rad) : -Math.cos(rad);
         double dirY = -Math.sin(rad);
