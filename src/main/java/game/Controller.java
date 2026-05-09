@@ -100,7 +100,10 @@ public class Controller {
 
         switch (projectile.getState()) {
             case IDLE   -> projectile.startAiming(player1Turn);
-            case AIMING -> projectile.fire();
+            case AIMING -> {
+                projectile.fire();
+                SoundManager.playThrow();
+            }
             case FLYING -> {}
         }
     }

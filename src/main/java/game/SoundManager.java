@@ -21,21 +21,22 @@ public class SoundManager {
     public static void stopWind() { stopSFX("wind"); }
 
     // --- ฟังก์ชันเล่นแบบวนลูป (Loop) สำหรับ Status Effect ---
-    public static void playFireLoop() { playSFXLoop("fire", PATH_FIRE); }
-    public static void playIceLoop()  { playSFXLoop("ice", PATH_ICE); }
-    public static void playWindLoop() { playSFXLoop("wind", PATH_WIND); }
+    public static void playFireLoop() { playSFX("fire", PATH_FIRE); }
+    public static void playIceLoop()  { playSFX("ice", PATH_ICE); }
+    public static void playWindLoop() { playSFX("wind", PATH_WIND); }
+    public static void playThrow() { playSFX("throw", PATH_THROW); }
 
     // ==========================================
     // ระบบจัดการภายใน
     // ==========================================
 
     // เล่น SFX แบบวนลูปจนกว่าจะสั่ง Stop
-    private static void playSFXLoop(String name, String resourcePath) {
+    private static void playSFX(String name, String resourcePath) {
         Clip clip = getOrCreateClip(name, resourcePath);
         if (clip != null) {
+            if (clip.isRunning()) clip.stop(); // หยุดของเก่าถ้ายังเล่นไม่จบ
             clip.setFramePosition(0);
-            clip.loop(Clip.LOOP_CONTINUOUSLY); // วนลูปไม่สิ้นสุด
-            clip.start();
+            clip.start(); // เล่นรอบเดียว ไม่สั่ง loop
         }
     }
 
