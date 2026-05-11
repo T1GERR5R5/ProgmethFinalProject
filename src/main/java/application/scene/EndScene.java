@@ -38,6 +38,7 @@ public class EndScene {
         bg.setFitWidth(800);
         bg.setFitHeight(400);
         bg.setPreserveRatio(false);
+        SoundManager.stopAllSFX();
         SoundManager.playLobbyBGM();
 
         // Dark overlay so text pops

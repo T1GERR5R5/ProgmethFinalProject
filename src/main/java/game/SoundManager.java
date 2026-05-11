@@ -19,6 +19,7 @@ public class SoundManager {
     public static void stopFire() { stopSFX("fire"); }
     public static void stopIce()  { stopSFX("ice"); }
     public static void stopWind() { stopSFX("wind"); }
+    public static void stopAllSFX() { stopWind();stopFire();stopIce();}
 
     // --- ฟังก์ชันเล่นแบบวนลูป (Loop) สำหรับ Status Effect ---
     public static void playFireLoop() { playSFX("fire", PATH_FIRE); }
