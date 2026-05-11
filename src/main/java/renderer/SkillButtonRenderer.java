@@ -2,16 +2,33 @@ package renderer;
 
 import game.Controller;
 import game.Projectile;
-import character.AbilityType;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 
+/**
+ * Draws the five skill-selection circles for both players at the top of the canvas.
+ *
+ * <p>Each player has five buttons in order: Normal, Fire, Ice, Wind, and their unique
+ * special Ability. A button is drawn:
+ * <ul>
+ *   <li>Greyed out with a cooldown counter when on cooldown.</li>
+ *   <li>At 38 % alpha when it is not the player's turn, the projectile is flying, or the
+ *       player is frozen.</li>
+ *   <li>With a white highlight ring when the attack is currently selected.</li>
+ * </ul>
+ * Hit-testing is performed externally by
+ * {@link application.HandleInput} using the public position constants.
+ */
 public class SkillButtonRenderer {
 
+    /** Y centre of all skill buttons in pixels. */
     public static final double   BTN_Y    = 55;
+    /** Radius of each skill button circle in pixels. */
     public static final double   BTN_R    = 14;
+    /** X centres of P1's five buttons, left to right. */
     public static final double[] P1_BTN_X = {69, 107, 145, 183, 221};
+    /** X centres of P2's five buttons, left to right. */
     public static final double[] P2_BTN_X = {579, 617, 655, 693, 731};
 
     private static final Color[] BASE_COLORS = {
@@ -25,16 +42,26 @@ public class SkillButtonRenderer {
     private final GraphicsContext gc;
     private final Controller      controller;
 
+    /**
+     * @param gc         canvas context to draw on
+     * @param controller game-logic hub used to query cooldowns, selected attack, and turn state
+     */
     public SkillButtonRenderer(GraphicsContext gc, Controller controller) {
         this.gc = gc;
         this.controller = controller;
     }
 
+    /** Draws both players' button rows. */
     public void draw() {
         drawPlayerButtons(P1_BTN_X, true);
         drawPlayerButtons(P2_BTN_X, false);
     }
 
+    /**
+     * Draws one player's row of five skill buttons.
+     * @param buttonXCoordinates the X centre positions for this player's buttons
+     * @param isP1               {@code true} for Player 1's row
+     */
     private void drawPlayerButtons(double[] buttonXCoordinates, boolean isP1) {
         boolean myTurn = controller.isPlayer1Turn() == isP1;
         boolean canAct = myTurn
@@ -50,9 +77,6 @@ public class SkillButtonRenderer {
             controller.getAbilityCooldown(isP1)
         };
         String abilityLabel = controller.getAbilityLabel(isP1);
-        Color  abilityColor = controller.getAbilityType(isP1) == AbilityType.HEAL
-                            ? Color.color(0.4, 1.0, 0.4)
-                            : Color.color(1.0, 0.85, 0.2);
         String[] labels = {"NRM", "FIRE", "ICE", "WIND", abilityLabel};
         gc.setGlobalAlpha(canAct ? 1.0 : 0.38);
 

@@ -9,14 +9,27 @@ import javafx.scene.text.Font;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Draws particle-based visual effects for the three status effects: Burn, Freeze, and Wind.
+ *
+ * <p>Each status effect has:
+ * <ul>
+ *   <li>An overlay highlight drawn over the affected character's sprite.</li>
+ *   <li>A pool of short-lived {@link Particle} instances emitted and updated every frame.</li>
+ * </ul>
+ * Called each frame by {@link GameRenderer#render()}.
+ */
 public class EffectRenderer {
 
     // ── Constants ────────────────────────────────────────────────────────────
     private static final double GROUND_Y      = Projectile.GROUND_Y;
     private static final double P1_BASE_X     = 100.0;
     private static final double P2_BASE_X     = 620.0;
+    /** Particles emitted per frame while burning. */
     private static final int    FIRE_EMIT     = 4;
+    /** Particles emitted per frame while frozen. */
     private static final int    ICE_EMIT      = 3;
+    /** Particles emitted per frame while under wind. */
     private static final int    WIND_EMIT     = 3;
 
     // ── Fields ───────────────────────────────────────────────────────────────
@@ -28,18 +41,27 @@ public class EffectRenderer {
     private final List<Particle> windParticles = new ArrayList<>();
 
     // ── Constructor ──────────────────────────────────────────────────────────
+    /**
+     * @param gc         canvas context to draw on
+     * @param controller game-logic hub used to query active status effects
+     */
     public EffectRenderer(GraphicsContext gc, Controller controller) {
         this.gc         = gc;
         this.controller = controller;
     }
 
     // ── Public API ───────────────────────────────────────────────────────────
+    /** Clears all live particles — called when a new match starts. */
     public void reset() {
         fireParticles.clear();
         iceParticles.clear();
         windParticles.clear();
     }
 
+    /**
+     * Draws all active status-effect overlays and particles for one frame.
+     * Only draws an effect if its corresponding player number is non-zero.
+     */
     public void draw() {
         if (controller.getFrozenPlayer()     != 0) drawIceEffect();
         if (controller.getBurnTargetPlayer() != 0) drawFireGlow();
@@ -48,12 +70,14 @@ public class EffectRenderer {
     }
 
     // ── Fire ─────────────────────────────────────────────────────────────────
+    /** Draws an orange glow ellipse at the feet of the burning player. */
     private void drawFireGlow() {
         double cx = charX(controller.getBurnTargetPlayer());
         gc.setFill(Color.color(1.0, 0.35, 0.0, 0.5));
         gc.fillOval(cx + 5, GROUND_Y + 60, 70, 18);
     }
 
+    /** Emits new fire particles originating from the burning character's body. */
     private void emitFireParticles() {
         if (controller.getBurnTargetPlayer() == 0) return;
         double cx = charX(controller.getBurnTargetPlayer());
@@ -69,6 +93,7 @@ public class EffectRenderer {
         }
     }
 
+    /** Renders each live fire particle as a colour-shifting circle. */
     private void drawFireParticles() {
         for (Particle p : fireParticles) {
             double t = p.lifeRatio();
@@ -78,6 +103,10 @@ public class EffectRenderer {
         }
     }
 
+    /**
+     * Maps a fire-particle life ratio to a yellow → orange → red colour gradient.
+     * @param t life ratio in [0, 1]; higher = fresher
+     */
     private Color fireColor(double t) {
         if (t > 0.65) return Color.color(1.0, 0.95, 0.0, t * 0.85);
         if (t > 0.35) return Color.color(1.0, 0.50, 0.0, t * 0.85);
@@ -85,6 +114,7 @@ public class EffectRenderer {
     }
 
     // ── Ice ──────────────────────────────────────────────────────────────────
+    /** Draws the blue freeze overlay and radiating spike lines on the frozen player. */
     private void drawIceEffect() {
         int    fp       = controller.getFrozenPlayer();
         double cx       = charX(fp) + 40;
@@ -112,6 +142,14 @@ public class EffectRenderer {
         gc.setFont(Font.font(13));
     }
 
+    /**
+     * Draws {@code count} evenly spaced lines radiating from the centre of the frozen character.
+     * @param cx       centre X in pixels
+     * @param cy       centre Y in pixels
+     * @param count    number of spike lines
+     * @param stepDeg  angular step between spikes in degrees
+     * @param len      length of each spike in pixels
+     */
     private void drawIceSpikes(double cx, double cy, int count, int stepDeg, double len) {
         for (int i = 0; i < count; i++) {
             double a = Math.toRadians(i * stepDeg);
@@ -119,6 +157,7 @@ public class EffectRenderer {
         }
     }
 
+    /** Emits ice particles expanding outward from the frozen character's centre. */
     private void emitIceParticles() {
         if (controller.getFrozenPlayer() == 0) return;
         double cx = charX(controller.getFrozenPlayer()) + 40;
@@ -137,6 +176,7 @@ public class EffectRenderer {
         }
     }
 
+    /** Renders each live ice particle as a light-blue fading circle. */
     private void drawIceParticles() {
         for (Particle p : iceParticles) {
             double t = p.lifeRatio();
@@ -147,12 +187,14 @@ public class EffectRenderer {
     }
 
     // ── Wind ─────────────────────────────────────────────────────────────────
+    /** Draws a green tinted overlay on the wind-affected player's sprite area. */
     private void drawWindOverlay() {
         int wp = controller.getWindTargetPlayer();
         gc.setFill(Color.color(0.15, 0.85, 0.45, 0.18));
         gc.fillRect(charX(wp) - 2, GROUND_Y + 3, 84, 84);
     }
 
+    /** Emits wind particles that drift horizontally away from the affected character. */
     private void emitWindParticles() {
         int wp = controller.getWindTargetPlayer();
         if (wp == 0) return;
@@ -170,6 +212,7 @@ public class EffectRenderer {
         }
     }
 
+    /** Renders each live wind particle as a horizontal green-tinted streak. */
     private void drawWindParticles() {
         for (Particle p : windParticles) {
             double t = p.lifeRatio();
@@ -179,6 +222,7 @@ public class EffectRenderer {
     }
 
     // ── Particle Update ──────────────────────────────────────────────────────
+    /** Emits new particles, applies physics to all live particles, then draws them. */
     private void updateAndDrawParticles() {
         emitFireParticles();
         emitIceParticles();
@@ -193,6 +237,11 @@ public class EffectRenderer {
         drawWindParticles();
     }
 
+    /**
+     * Advances position, applies gravity, decrements life, and removes dead particles.
+     * @param particles the pool to update
+     * @param gravity   downward acceleration per frame
+     */
     private void updateParticles(List<Particle> particles, double gravity) {
         for (Particle p : particles) {
             p.x  += p.vx;
@@ -204,12 +253,20 @@ public class EffectRenderer {
     }
 
     // ── Helpers ──────────────────────────────────────────────────────────────
+    /**
+     * Returns the wind-adjusted X coordinate for a player's sprite.
+     * @param playerNum 1 or 2
+     */
     private double charX(int playerNum) {
         double base = (playerNum == 1) ? P1_BASE_X : P2_BASE_X;
         return base + controller.getWindXOffset(playerNum);
     }
 
     // ── Particle ─────────────────────────────────────────────────────────────
+    /**
+     * A simple mutable value object representing one particle in a visual effect.
+     * Position, velocity, and remaining life are updated directly by the outer class.
+     */
     private static final class Particle {
         double x, y, vx, vy, life;
         final double maxLife;
@@ -223,7 +280,9 @@ public class EffectRenderer {
             this.maxLife = life;
         }
 
+        /** @return {@code true} when the particle's lifetime has expired */
         boolean isDead()    { return life <= 0; }
+        /** @return fraction of lifetime remaining (1.0 = brand new, 0.0 = dead) */
         double  lifeRatio() { return life / maxLife; }
     }
 }

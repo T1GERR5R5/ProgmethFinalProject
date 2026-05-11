@@ -6,6 +6,18 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 
+/**
+ * Draws the heads-up display (HUD) overlay on the game canvas.
+ *
+ * <p>The HUD consists of:
+ * <ul>
+ *   <li>Two rounded HP-bar panels (one per player) at the top of the screen.</li>
+ *   <li>A centred "VS" text label.</li>
+ *   <li>A turn indicator below "VS" that shows whose turn it is or the FROZEN state.</li>
+ * </ul>
+ * HP bars shrink and change colour (green → yellow → red) as HP decreases.
+ * P2's bar is right-aligned and fills from right to left.
+ */
 public class HudRenderer {
 
     private static final double PANEL_W    = 268;
@@ -19,6 +31,12 @@ public class HudRenderer {
     private final BasePlayer      p1;
     private final BasePlayer      p2;
 
+    /**
+     * @param gc         canvas context to draw on
+     * @param controller game-logic hub used to query turn and freeze state
+     * @param p1         Player 1's character
+     * @param p2         Player 2's character
+     */
     public HudRenderer(GraphicsContext gc, Controller controller, BasePlayer p1, BasePlayer p2) {
         this.gc = gc;
         this.controller = controller;
@@ -26,6 +44,10 @@ public class HudRenderer {
         this.p2 = p2;
     }
 
+    /**
+     * Draws the full HUD for the current frame: panel backgrounds, player labels,
+     * VS text, HP bars, and the turn indicator.
+     */
     public void draw() {
         gc.setFill(Color.color(0.07, 0.07, 0.12, 0.86));
         gc.fillRoundRect(P1_PANEL_X, 4, PANEL_W, PANEL_H, 10, 10);
@@ -60,6 +82,7 @@ public class HudRenderer {
         drawTurnIndicator();
     }
 
+    /** Renders the current HP bars for both players and their numeric HP labels. */
     private void updateHpBars() {
         double P1HpRatio = Math.max(0, p1.getHp() / (double) p1.getMaxHp());
         gc.setFill(hpColor(P1HpRatio));
@@ -75,6 +98,7 @@ public class HudRenderer {
         gc.fillText(p2.getHp() + " HP", P2_PANEL_X + 7, 34);
     }
 
+    /** Draws the turn label below "VS"; shows FROZEN state in cyan when applicable. */
     private void drawTurnIndicator() {
         boolean frozen = controller.isCurrentPlayerFrozen();
         String label = frozen
@@ -88,6 +112,10 @@ public class HudRenderer {
         gc.fillText(label, 369, 76);
     }
 
+    /**
+     * Maps an HP ratio to a bar colour: green above 50 %, yellow above 25 %, red otherwise.
+     * @param ratio current HP / max HP in [0, 1]
+     */
     private static Color hpColor(double ratio) {
         if (ratio > 0.5)  return Color.rgb(55, 200, 65);
         if (ratio > 0.25) return Color.rgb(215, 175, 0);
