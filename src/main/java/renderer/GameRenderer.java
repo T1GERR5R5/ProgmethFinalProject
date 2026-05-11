@@ -8,6 +8,19 @@ import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 
+/**
+ * Top-level renderer that orchestrates all per-frame drawing for a match.
+ *
+ * <p>Composes four sub-renderers:
+ * <ul>
+ *   <li>{@link HudRenderer} — HP bars, player labels, turn indicator</li>
+ *   <li>{@link SkillButtonRenderer} — clickable skill circles at the top</li>
+ *   <li>{@link EffectRenderer} — Burn/Freeze/Wind particle effects</li>
+ *   <li>{@link ProjectileRenderer} — aim arrow and flying projectile trail</li>
+ * </ul>
+ * Also draws the background image, player sprites (P2 mirrored), and the
+ * temporary HIT/MISSED result flash.
+ */
 public class GameRenderer {
 
     private final GraphicsContext gc;
@@ -27,6 +40,13 @@ public class GameRenderer {
 
     private static final double GROUND_Y = Projectile.GROUND_Y;
 
+    /**
+     * Creates the renderer and all its sub-renderers.
+     * @param gc         the canvas graphics context to draw on
+     * @param controller game-logic hub used to query state
+     * @param p1         Player 1's character
+     * @param p2         Player 2's character
+     */
     public GameRenderer(GraphicsContext gc, Controller controller, BasePlayer p1, BasePlayer p2) {
         this.gc = gc;
         this.controller = controller;
@@ -43,18 +63,29 @@ public class GameRenderer {
         } catch (Exception ignored) {}
     }
 
+    /**
+     * Stores a projectile result string to be displayed as a flash overlay.
+     * The flash lasts 100 frames; an empty string is ignored.
+     * @param result e.g. {@code "HIT!  FIRE!"} or {@code "MISSED!  Turn lost."}
+     */
     public void onResult(String result) {
         if (result.isEmpty()) return;
         lastResult  = result;
         resultTimer = 100;
     }
 
+    /** Clears the result flash and resets all particle effects. */
     public void reset() {
         effects.reset();
         lastResult  = "";
         resultTimer = 0;
     }
 
+    /**
+     * Draws one complete frame in layer order:
+     * background → HUD → skill buttons → effects → projectile → result flash.
+     * Called every frame by the AnimationTimer in {@link application.scene.GamePlayScene}.
+     */
     public void render() {
         drawBackground();
         hud.draw();
@@ -64,6 +95,7 @@ public class GameRenderer {
         drawResultFlash();
     }
 
+    /** Draws the background image and both player sprites (P2 horizontally mirrored). */
     private void drawBackground() {
         if (backgroundImage != null) gc.drawImage(backgroundImage, 0, 0, 800, 400);
 
@@ -77,6 +109,7 @@ public class GameRenderer {
 
     }
 
+    /** Renders the HIT/MISSED flash text with a drop-shadow effect for 100 frames. */
     private void drawResultFlash() {
         if (resultTimer <= 0) return;
         resultTimer--;
@@ -88,6 +121,11 @@ public class GameRenderer {
         gc.fillText(lastResult, 270, 195);
     }
 
+    /**
+     * Returns the wind-adjusted X coordinate for a player's sprite.
+     * @param playerNum 1 or 2
+     * @return screen X position in pixels
+     */
     private double charX(int playerNum) {
         return (playerNum == 1 ? 100.0 : 620.0) + controller.getWindXOffset(playerNum);
     }

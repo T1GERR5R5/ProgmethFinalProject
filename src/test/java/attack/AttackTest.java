@@ -40,27 +40,27 @@ class AttackTest {
     // ── FireAttack ───────────────────────────────────────────────────────────
 
     @Test
-    void testFireAttackDealsNoDirectDamage() {
+    void testFireAttackDealsTwoDamage() {
         int before = target.getHp();
         new FireAttack().attack(target);
-        assertEquals(before, target.getHp());
+        assertEquals(before - 2, target.getHp());
     }
 
     // ── IceAttack ────────────────────────────────────────────────────────────
 
     @Test
-    void testIceAttackDealsNoDirectDamage() {
+    void testIceAttackDealsOneDamage() {
         int before = target.getHp();
         new IceAttack().attack(target);
-        assertEquals(before, target.getHp());
+        assertEquals(before - 1, target.getHp());
     }
 
     // ── WindAttack ───────────────────────────────────────────────────────────
 
     @Test
-    void testWindAttackDealsNoDirectDamage() {
+    void testWindAttackDealsOneDamage() {
         int before = target.getHp();
         new WindAttack().attack(target);
-        assertEquals(before, target.getHp());
+        assertEquals(before - 1, target.getHp());
     }
 }

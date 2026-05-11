@@ -7,14 +7,23 @@ import character.BasePlayer;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Central game-logic hub for one match. Manages turn order, attack selection,
+ * projectile lifecycle, ability usage, cooldowns, and delegates status-effect
+ * tracking to {@link StatusManager}.
+ *
+ * <p>Called every frame by the AnimationTimer in {@link application.scene.GamePlayScene}.
+ */
 public class Controller {
-    // ── Constants ────────────────────────────────────────────────────────────
+    /** Identifier constant for Fire attacks (used as cooldown map key). */
     public static final String ATTACK_FIRE = "FIRE";
+    /** Identifier constant for Ice attacks. */
     public static final String ATTACK_ICE  = "ICE";
+    /** Identifier constant for Wind attacks. */
     public static final String ATTACK_WIND = "WIND";
+    /** Turns before a player's special ability is available again. */
     public static final int ABILITY_COOLDOWN = 4;
 
-    // ── Core Game State ──────────────────────────────────────────────────────
     private final BasePlayer p1;
     private final BasePlayer p2;
     private boolean player1Turn = true;
@@ -26,9 +35,12 @@ public class Controller {
     private final Map<String, int[]> cooldowns = new HashMap<>();
     private final int[] abilityCooldown = {0, 0};
 
-    // ── Managers ───────────────────────────────────────────────────────────────
     private final StatusManager statusManager = new StatusManager();
 
+    /**
+     * @param p1 Player 1's character
+     * @param p2 Player 2's character
+     */
     public Controller(BasePlayer p1, BasePlayer p2) {
         this.p1 = p1;
         this.p2 = p2;
@@ -39,6 +51,11 @@ public class Controller {
 
     // ── Update Loop ──────────────────────────────────────────────────────────
 
+    /**
+     * Advances the game by one frame: syncs wind offsets, updates the projectile,
+     * processes burn ticks, and checks for a frozen-turn auto-skip.
+     * Must be called every frame from the AnimationTimer.
+     */
     public void update() {
         statusManager.updateWindFrame();
 
@@ -77,6 +94,11 @@ public class Controller {
 
     // ── Actions & Inputs ─────────────────────────────────────────────────────
 
+    /**
+     * Sets the attack type for the current turn.
+     * Validates that the attack is not on cooldown and the game state allows selection.
+     * @param attack the attack to select; {@code null} is silently ignored
+     */
     public void selectAttack(Attackable attack) {
         if (attack == null || isCurrentPlayerFrozen() || projectile.getState() == Projectile.State.FLYING) return;
 
@@ -91,6 +113,10 @@ public class Controller {
         System.out.println(getCurrentPlayerName() + " selected " + attack.getName());
     }
 
+    /**
+     * Handles a SPACE key press.
+     * First press → {@link Projectile#startAiming}; second press → {@link Projectile#fire}.
+     */
     public void handleSpacebar() {
         if (isCurrentPlayerFrozen()) return;
         if (selectedAttack == null) {
@@ -134,6 +160,10 @@ public class Controller {
         }
     }
 
+    /**
+     * Activates the current player's special ability if off cooldown and the projectile is IDLE.
+     * Dog: heals and ends the turn. Cat: locks perfect-aim angle and cancels wind on self.
+     */
     public void handleAbility() {
         if (isCurrentPlayerFrozen() || projectile.getState() != Projectile.State.IDLE) return;
 
@@ -148,7 +178,7 @@ public class Controller {
         abilityCooldown[idx] = ABILITY_COOLDOWN;
 
         if (current.isPerfectAimReady()) {
-            statusManager.clearWindEffect(2); // Cancel P2 Wind
+            statusManager.clearWindEffect(2);
 
             double launchOff = getWindXOffset(getCurrentPlayerNum());
             double targetOff = getWindXOffset(getOpponentNum());
@@ -184,32 +214,53 @@ public class Controller {
     private int getOpponentNum()             { return player1Turn ? 2 : 1; }
     private String getCurrentPlayerName()    { return player1Turn ? "P1" : "P2"; }
 
-    // ── Public Getters (รักษาไว้เพื่อให้ไฟล์อื่นเรียกใช้ได้เหมือนเดิม) ────────────
+    // ── Public Getters ───────────────────────────────────────────────────────
 
+    /**
+     * Returns the cosine-based horizontal displacement for a wind-affected player.
+     * @param playerNum 1 or 2
+     * @return pixel offset; {@code 0} if the player is not wind-affected
+     */
     public double getWindXOffset(int playerNum) {
         return PhysicsUtils.calculateWindXOffset(playerNum, statusManager.getWindTargetPlayer(), statusManager.getWindFrameCounter());
     }
 
+    /** @return {@code true} if the current turn's player is frozen */
     public boolean isCurrentPlayerFrozen()   { return statusManager.getFrozenPlayer() == getCurrentPlayerNum(); }
+    /** @return the selected attack's name, or {@code ""} if none selected */
     public String getSelectedAttackName()    { return selectedAttack == null ? "" : selectedAttack.getName(); }
+    /** @param isP1 which player's ability type to return */
     public AbilityType getAbilityType(boolean isP1) { return isP1 ? p1.getAbilityType() : p2.getAbilityType(); }
+    /** @param isP1 which player's ability label to return */
     public String getAbilityLabel(boolean isP1)     { return isP1 ? p1.getAbilityLabel() : p2.getAbilityLabel(); }
 
+    /** @return the shared {@link Projectile} instance */
     public Projectile getProjectile()        { return projectile; }
+    /** @return {@code true} if it is currently P1's turn */
     public boolean isPlayer1Turn()           { return player1Turn; }
 
-    // ดึงค่า Status ผ่าน Manager
+    /** @return player number currently burning (0 if none) */
     public int getBurnTargetPlayer()         { return statusManager.getBurnTargetPlayer(); }
+    /** @return remaining burn ticks */
     public int getBurnTicksLeft()            { return statusManager.getBurnTicksLeft(); }
+    /** @return frames elapsed in the current burn tick */
     public int getBurnFrameTimer()           { return statusManager.getBurnFrameTimer(); }
+    /** @return player number currently frozen (0 if none) */
     public int getFrozenPlayer()             { return statusManager.getFrozenPlayer(); }
+    /** @return frames remaining until the frozen turn is skipped */
     public int getFrozenDisplayTimer()       { return statusManager.getFrozenDisplayTimer(); }
+    /** @return player number currently affected by wind (0 if none) */
     public int getWindTargetPlayer()         { return statusManager.getWindTargetPlayer(); }
+    /** @return remaining wind turns */
     public int getWindTurnsLeft()            { return statusManager.getWindTurnsLeft(); }
 
+    /** @param isP1 which player's Fire cooldown to query */
     public int getFireCooldown(boolean isP1) { return getCooldown(ATTACK_FIRE, isP1); }
+    /** @param isP1 which player's Ice cooldown to query */
     public int getIceCooldown(boolean isP1)  { return getCooldown(ATTACK_ICE,  isP1); }
+    /** @param isP1 which player's Wind cooldown to query */
     public int getWindCooldown(boolean isP1) { return getCooldown(ATTACK_WIND, isP1); }
+    /** @param isP1 which player's ability cooldown to query */
     public int getAbilityCooldown(boolean isP1) { return abilityCooldown[isP1 ? 0 : 1]; }
 
     private int getCooldown(String name, boolean isP1) {
@@ -217,6 +268,11 @@ public class Controller {
         return cd != null ? cd[isP1 ? 0 : 1] : 0;
     }
 
+    /**
+     * Returns and clears the last projectile result string (e.g. {@code "HIT!  FIRE!"}).
+     * Called once per frame by the renderer.
+     * @return result string, or {@code ""} if no new result
+     */
     public String getAndClearProjectileResult() {
         String r = projectileResult;
         projectileResult = "";

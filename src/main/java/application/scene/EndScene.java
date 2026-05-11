@@ -22,10 +22,27 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 
+/**
+ * Post-match scene shown after a winner is determined.
+ *
+ * <p>Displays the winner's name with a glowing banner and provides three
+ * navigation buttons: Rematch (resets HP and replays immediately),
+ * Change Characters (returns to {@link CharacterSelectScene}),
+ * and Main Menu (returns to {@link StartScene}).
+ */
 public class EndScene {
     private BasePlayer p1;
     private BasePlayer p2;
 
+    /**
+     * Builds and returns the end-screen {@link javafx.scene.Scene}.
+     * Switches the BGM to the lobby track.
+     *
+     * @param winner display name of the winning player (e.g. {@code "Player 1"})
+     * @param p1     Player 1's character instance (used for Rematch)
+     * @param p2     Player 2's character instance (used for Rematch)
+     * @return the fully assembled 800×400 Scene
+     */
     public Scene buildEndScene(String winner,BasePlayer p1,BasePlayer p2) {
         // ── Background image ─────────────────────────────────────────────────
         this.p1 = p1;
@@ -96,6 +113,12 @@ public class EndScene {
         return new Scene(root, 800, 400);
     }
 
+    /**
+     * Creates a uniformly styled end-screen button.
+     * @param label      button text
+     * @param colorStyle inline JavaFX CSS for background and text colour
+     * @return the configured {@link Button}
+     */
     private static Button buildEndButton(String label, String colorStyle) {
         Button btn = new Button(label);
         btn.setPrefSize(172, 42);

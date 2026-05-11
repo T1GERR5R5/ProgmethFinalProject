@@ -12,6 +12,15 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.layout.StackPane;
 import renderer.GameRenderer;
 
+/**
+ * Wires together all game subsystems and drives the main game loop for one match.
+ *
+ * <p>Creates the JavaFX {@link Canvas}, instantiates {@link Controller},
+ * {@link GameRenderer}, and {@link HandleInput}, then starts an
+ * {@link AnimationTimer} that calls {@code controller.update()} and
+ * {@code renderer.render()} every frame. When either player's HP reaches zero the
+ * timer stops and the scene transitions to {@link EndScene}.
+ */
 public class GamePlayScene {
     private AnimationTimer timer;
     private Controller     controller;
@@ -19,6 +28,15 @@ public class GamePlayScene {
     private BasePlayer p1;
     private BasePlayer p2;
 
+    /**
+     * Initialises and starts a new match for the two given players.
+     * Resets HP to max, builds the canvas scene, attaches input handling,
+     * starts the fight BGM, and launches the AnimationTimer.
+     *
+     * @param p1 Player 1's character
+     * @param p2 Player 2's character
+     * @return the new JavaFX {@link javafx.scene.Scene} that has been set on the primary stage
+     */
     public Scene startGame(BasePlayer p1,BasePlayer p2) {
         this.p1 = p1;
         this.p2 = p2;

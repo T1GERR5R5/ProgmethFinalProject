@@ -1,0 +1,1 @@
+tagSearchIndex = [{"l":"Constant Field Values","h":"","u":"constant-values.html"},{"l":"Physics (each FLYING frame)","h":"class game.Projectile","d":"Section","u":"game/Projectile.html#physics-each-flying-frame--heading"}];updateSearchResults();

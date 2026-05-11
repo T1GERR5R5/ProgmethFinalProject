@@ -22,9 +22,24 @@ import javafx.scene.text.Text;
 
 import static game.SoundManager.playLobbyBGM;
 
-
+/**
+ * The main-menu scene shown when the application starts.
+ *
+ * <p>Displays the game title, a subtitle, and two buttons:
+ * <ul>
+ *   <li><b>Start Game</b> — navigates to {@link CharacterSelectScene}</li>
+ *   <li><b>Quit</b> — closes the application window</li>
+ * </ul>
+ * The lobby BGM is started when the scene is built.
+ */
 public class StartScene {
+    /** The background image view (public for potential external access). */
     public ImageView bg;
+
+    /**
+     * Constructs and returns the main-menu {@link javafx.scene.Scene}.
+     * @return the fully assembled 800×400 Scene
+     */
     public Scene build() {
         bg = new ImageView();
         try {
@@ -79,6 +94,13 @@ public class StartScene {
         Scene startScene = new Scene(root, 800, 400);
         return startScene;
     }
+
+    /**
+     * Creates a uniformly styled main-menu button.
+     * @param label      button text
+     * @param colorStyle inline JavaFX CSS for background and text colour
+     * @return the configured {@link Button}
+     */
     private static Button buildMenuButton(String label, String colorStyle) {
         Button btn = new Button(label);
         btn.setPrefSize(190, 46);
@@ -87,5 +109,5 @@ public class StartScene {
         DropShadow ds = new DropShadow(10, Color.color(0, 0, 0, 0.55));
         btn.setEffect(ds);
         return btn;
-    }}
-
+    }
+}

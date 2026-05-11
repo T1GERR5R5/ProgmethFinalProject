@@ -20,6 +20,13 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 
+/**
+ * Scene where both players choose their character (Dog or Cat) before a match.
+ *
+ * <p>Builds two side-by-side character panels. Each panel contains card buttons
+ * showing the character's sprite and ability label. The FIGHT button is disabled
+ * until both players have made a selection.
+ */
 public class CharacterSelectScene {
 
     private static final double CARD_W      = 130;
@@ -32,7 +39,10 @@ public class CharacterSelectScene {
     private Button p1DogBtn, p1CatBtn, p2DogBtn, p2CatBtn;
     private final Button fightBtn = new Button("⚔  FIGHT!");
 
-
+    /**
+     * Constructs and returns the character-select {@link Scene}.
+     * @return the fully assembled 800×400 JavaFX Scene
+     */
     public Scene build() {
         // ── Background ───────────────────────────────────────────────────────
         ImageView bg = new ImageView();
@@ -104,6 +114,12 @@ public class CharacterSelectScene {
         return new Scene(root, 800, 400);
     }
 
+    /**
+     * Builds the selection panel for one player, including the player label and
+     * Dog/Cat card buttons.
+     * @param isP1 {@code true} for Player 1's panel, {@code false} for Player 2's
+     * @return the assembled {@link VBox} panel
+     */
     private VBox buildPlayerPanel(boolean isP1) {
         // Player label
         Text labelShadow = new Text(isP1 ? "PLAYER 1" : "PLAYER 2");
@@ -134,6 +150,13 @@ public class CharacterSelectScene {
         return box;
     }
 
+    /**
+     * Builds a single character card button containing the sprite, name, and ability hint.
+     * P2 sprites are flipped horizontally via {@code setScaleX(-1)}.
+     * @param isDog {@code true} for Dog, {@code false} for Cat
+     * @param isP1  {@code true} if the card belongs to Player 1's panel
+     * @return the styled card {@link Button}
+     */
     private Button buildCharCard(boolean isDog, boolean isP1) {
         String imgPath   = isDog ? "/images/dog.png" : "/images/cat.png";
         String charName  = isDog ? "Dog" : "Cat";
@@ -181,6 +204,12 @@ public class CharacterSelectScene {
         return btn;
     }
 
+    /**
+     * Records the selected character for the given player and updates card highlight
+     * styles. Enables the FIGHT button once both players have chosen.
+     * @param isDog {@code true} if Dog was selected
+     * @param isP1  {@code true} if Player 1 made the selection
+     */
     private void selectChar(boolean isDog, boolean isP1) {
         if (isP1) {
             p1Selected = isDog ? new DogPlayer() : new CatPlayer();
@@ -197,7 +226,9 @@ public class CharacterSelectScene {
         }
     }
 
+    /** @return Player 1's selected character, or {@code null} if not yet chosen */
     public BasePlayer getP1() { return p1Selected; }
+    /** @return Player 2's selected character, or {@code null} if not yet chosen */
     public BasePlayer getP2() { return p2Selected; }
 
     private static String cardUnselected() {
